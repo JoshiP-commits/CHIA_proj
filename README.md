@@ -81,20 +81,24 @@ Expected runtime: **10–20 minutes**, dominated by Gemini API latency and Nsigh
 ---
 
 ## 📁 Repository Structure
+## 📁 Repository Structure
+
+```
 CHIA_proj/
-├── README.md <- you are here
-├── LICENSE
-├── GraphSynth_MultiOp_Colab.ipynb <- the full runnable pipeline
-├── generated_kernels/ <- real, accepted Triton kernels
-│ ├── layernorm_kernel.py
-│ ├── relu_kernel.py
-│ ├── leaky_relu_kernel.py
-│ ├── softmax_kernel.py
-│ ├── silu_kernel.py
-│ ├── sigmoid_kernel.py
-│ └── gelu_kernel.py
-└── logs/
-└── stage1-4_run_output.txt <- raw console output backing the results table
+├── README.md
+├── GraphSynth_MultiOp_Colab_v9.ipynb    <- the full runnable pipeline
+├── generated_kernels/                    <- created automatically when
+│                                             you run the notebook; holds
+│                                             every accepted Triton kernel
+└── logs/                                 <- (optional) paste your own
+                                              run's console output here
+                                              for reference
+```
+
+> **Note:** `generated_kernels/` and `logs/` are not pre-populated in
+> this repo — they are produced automatically the first time you run
+> `GraphSynth_MultiOp_Colab_v9.ipynb` end to end. Each accepted kernel
+> is saved to `generated_kernels/<op_name>_kernel.py` during Stage 2/3/4.
 ## 📄 Citation
 
 If you use this work, please cite the accompanying paper submitted to the CHIA Hackathon @ MICRO 2026.
