@@ -3,7 +3,7 @@
 **Autonomous Optimization of PyTorch Execution Graphs via Search-Guided Compiler Pass & Triton Kernel Synthesis**
 
 > Submitted to the **CHIA Hackathon @ MICRO 2026**
-> Authors: **Joshi Penta**, **Priyesh Shukla** — IIIT Hyderabad
+> Authors: **Joshi Penta**, **Priyesh Shukla**  - International Institute of Information Technology Hyderabad
 
 ---
 
