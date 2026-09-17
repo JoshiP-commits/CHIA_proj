@@ -81,7 +81,7 @@ Expected runtime: **10–20 minutes**, dominated by Gemini API latency and Nsigh
 ---
 
 ## 📁 Repository Structure
-CHIA_proj/
+    CHIA_proj/
 ├── README.md <- you are here
 ├── LICENSE
 ├── GraphSynth_MultiOp_Colab.ipynb <- the full runnable pipeline
