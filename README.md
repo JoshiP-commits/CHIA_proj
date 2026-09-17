@@ -81,7 +81,6 @@ Expected runtime: **10–20 minutes**, dominated by Gemini API latency and Nsigh
 ---
 
 ## 📁 Repository Structure
-## 📁 Repository Structure
 
 ```
 CHIA_proj/
