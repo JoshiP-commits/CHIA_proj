@@ -81,7 +81,7 @@ Expected runtime: **10–20 minutes**, dominated by Gemini API latency and Nsigh
 ---
 
 ## 📁 Repository Structure
-    CHIA_proj/
+CHIA_proj/
 ├── README.md <- you are here
 ├── LICENSE
 ├── GraphSynth_MultiOp_Colab.ipynb <- the full runnable pipeline
@@ -95,7 +95,6 @@ Expected runtime: **10–20 minutes**, dominated by Gemini API latency and Nsigh
 │ └── gelu_kernel.py
 └── logs/
 └── stage1-4_run_output.txt <- raw console output backing the results table
-
 ## 📄 Citation
 
 If you use this work, please cite the accompanying paper submitted to the CHIA Hackathon @ MICRO 2026.
