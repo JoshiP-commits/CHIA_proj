@@ -41,6 +41,16 @@ manufacture speedups.
   the roofline constants in the scripts are hardcoded to this device
   (`PEAK_BW = 1555 GB/s`).
 - PyTorch 2.9.1 + CUDA 12.9. Triton ships with PyTorch; do not install it separately.
+  Install from the CUDA wheel index, since the default PyPI wheel may not match:
+  ```bash
+  pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cu129
+  python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+  ```
+  Install from the CUDA wheel index, or pip may give you a CPU-only build and every
+  script will fail at `.cuda()`:
+  ```bash
+  pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cu129
+  ```
 - Stage 2 (synthesis) additionally needs Vertex AI access:
   ```bash
   export GCP_PROJECT=<your-gcp-project>
@@ -60,9 +70,12 @@ anything from our setup. They also write their output CSVs there. So copy the ke
 directories into your home directory once:
 
 ```bash
-cp -r kernels_* generated_kernels ~/
+cp -r kernels_* ~/
 ls -d ~/kernels_*        # expect four directories
 ```
+
+`generated_kernels/` is the two-operator prototype run and is not read by any benchmark,
+so it does not need copying.
 
 After that you can run the scripts from anywhere inside the clone. Their CSVs will
 appear in `~/`, and you can diff them against the published copies in `results/`.
@@ -81,10 +94,16 @@ was wrong in exactly that way (see *Known issues*).
 **2. Re-benchmark the released kernels** (no LLM calls, ~10 min):
 
 ```bash
-python final_bench.py    # -> FINAL_single_tensor.csv, FINAL_attention.csv   (Tables 1, 2)
-python extra_bench.py    # -> FINAL_flexattention.csv                        (Table 2)
-python shape_gen.py      # -> FINAL_shape_generalisation.csv                 (Table 3)
+python final_bench.py    # -> FINAL_single_tensor.csv   (Table 1)
+                         #    FINAL_attention.csv       (earlier attention run, not quoted)
+python extra_bench.py    # -> FINAL_flexattention.csv   (Table 2, every column)
+                         #    FINAL_seqsweep.csv        (sequence-length sweep)
+python shape_gen.py      # -> FINAL_shape_generalisation.csv   (Table 3)
 ```
+
+Compare Table 2 against `FINAL_flexattention.csv` from `extra_bench.py`, not against
+`FINAL_attention.csv`. Both measure the same ten operators and agree to within 0.3%, but
+the paper quotes the former so that each row's latencies and speedups come from one run.
 
 **3. Re-run synthesis from scratch** (needs Vertex AI; ~30 min; results will differ,
 LLM sampling is stochastic):
@@ -149,8 +168,8 @@ measurement, kept for transparency; it differs by under 0.3%.
 
 | File | Produces |
 |---|---|
-| `final_bench.py` | Tables 1 and 2 |
-| `extra_bench.py` | the `flex_attention` column of Table 2 |
+| `final_bench.py` | Table 1, plus an earlier attention run |
+| `extra_bench.py` | Table 2, every column |
 | `shape_gen.py` | Table 3 |
 | `bench.py`, `compile_bench.py` | earlier measurement passes, kept for the record |
 
