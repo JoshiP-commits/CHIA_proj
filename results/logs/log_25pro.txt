@@ -1,0 +1,137 @@
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+Direct use of automatic function calling (AFC) in Models.generate_content is not recommended. Instead, we recommend to use AFC in Chat.send_message. Similarly, direct use of AFC in Models.generate_content_stream is not recommended. Instead, we recommend to use AFC in Chat.send_message_stream.
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+MODEL=gemini-2.5-pro   flash ceiling 553 us   -> /home/devstar7724/kernels_gemini25pro_2346
+
+==========================================================================
+OP: sigmoid_attn
+==========================================================================
+  eager baseline 8812 us (12 kernels)
+  -- iter 1/3 --
+     verify FAIL (standard rel=7.85e-01; small rel=9.96e-01)
+  -- iter 2/3 --
+     verify FAIL (standard rel=7.85e-01; small rel=9.96e-01)
+  -- iter 3/3 --
+     verify FAIL (standard rel=7.85e-01; small rel=9.96e-01)
+==========================================================================
+OP: relu_attn
+==========================================================================
+  eager baseline 6013 us (8 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=5.89e-03; small rel=5.55e-03)
+     743 us   speedup 8.09x   (1.34x flash)
+==========================================================================
+OP: temp_perhead
+==========================================================================
+  eager baseline 5696 us (7 kernels)
+  -- iter 1/3 --
+     verify FAIL (standard: CompilationError: at 118:20:
+        # 4. Update the running max
+     )
+  -- iter 2/3 --
+     verify FAIL (standard: CompilationError: at 82:12:
+        k_ptrs = k_base_ptr + (offs_d[:, N)
+  -- iter 3/3 --
+     verify PASS (standard rel=7.93e-03; small rel=3.11e-03)
+     2477 us   speedup 2.30x   (4.48x flash)
+==========================================================================
+OP: bias_alibi
+==========================================================================
+  eager baseline 4226 us (5 kernels)
+  -- iter 1/3 --
+     verify FAIL (standard rel=6.97e+00; small rel=6.94e+00)
+  -- iter 2/3 --
+     verify PASS (standard rel=5.83e-03; small rel=4.55e-03)
+     2240 us   speedup 1.89x   (4.05x flash)
+==========================================================================
+OP: bias_dilated
+==========================================================================
+  eager baseline 1490 us (2 kernels)
+  -- iter 1/3 --
+     verify FAIL (standard: CompilationError: at 110:15:
+
+        # -- d. Perform online softmax u)
+  -- iter 2/3 --
+     verify FAIL (standard: CompilationError: at 41:13:
+
+    # 2. Pointer setup
+    # Base pointer)
+  -- iter 3/3 --
+     verify FAIL (standard: CompilationError: at 76:12:
+        # -- a. Load K and V for the curre)
+==========================================================================
+OP: bias_local
+==========================================================================
+  eager baseline 9155 us (0 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=1.23e-02; small rel=5.95e-03)
+     985 us   speedup 9.30x   (1.78x flash)
+==========================================================================
+OP: bias_block_diagonal
+==========================================================================
+  eager baseline 9068 us (0 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=4.36e-03; small rel=2.73e-03)
+     1652 us   speedup 5.49x   (2.99x flash)
+==========================================================================
+OP: bias_prefix_lm
+==========================================================================
+  eager baseline 9107 us (0 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=1.59e-02; small rel=6.53e-03)
+     3257 us   speedup 2.80x   (5.89x flash)
+==========================================================================
+OP: softcap_gemma2
+==========================================================================
+  eager baseline 11391 us (0 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=5.95e-03; small rel=3.11e-03)
+     2179 us   speedup 5.23x   (3.94x flash)
+==========================================================================
+OP: bias_sliding_window
+==========================================================================
+  eager baseline 9138 us (0 kernels)
+  -- iter 1/3 --
+     verify FAIL (standard: CompilationError: at 144:28:
+        # Update running max for the next)
+  -- iter 2/3 --
+     verify PASS (standard rel=3.97e-03; small rel=3.11e-03)
+     1270 us   speedup 7.20x   (2.30x flash)
+
+============================================================================================
+MODEL: gemini-2.5-pro
+op                      status       baseline   kernel  speedup  xflash   relerr  it
+--------------------------------------------------------------------------------------------
+sigmoid_attn            FAILED          8812u------       --   3
+relu_attn               ACCEPTED        6013u     743u    8.09x   1.34x  5.9e-03   1
+temp_perhead            ACCEPTED        5696u    2477u    2.30x   4.48x  7.9e-03   3
+bias_alibi              ACCEPTED        4226u    2240u    1.89x   4.05x  5.8e-03   2
+bias_dilated            FAILED          1490u------       --   3
+bias_local              ACCEPTED        9155u     985u    9.30x   1.78x  1.2e-02   1
+bias_block_diagonal     ACCEPTED        9068u    1652u    5.49x   2.99x  4.4e-03   1
+bias_prefix_lm          ACCEPTED        9107u    3257u    2.80x   5.89x  1.6e-02   1
+softcap_gemma2          ACCEPTED       11391u    2179u    5.23x   3.94x  6.0e-03   1
+bias_sliding_window     ACCEPTED        9138u    1270u    7.20x   2.30x  4.0e-03   2
+--------------------------------------------------------------------------------------------
+8/10 accepted
+============================================================================================

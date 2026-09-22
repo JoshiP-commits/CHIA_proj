@@ -1,0 +1,112 @@
+[
+  {
+    "op": "sigmoid_attn",
+    "model": "gemini-3.1-pro-preview",
+    "status": "FAILED",
+    "baseline_us": 8809.9,
+    "kernel_us": null,
+    "speedup": null,
+    "vs_flash": null,
+    "rel_err": null,
+    "iters": 3
+  },
+  {
+    "op": "relu_attn",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 5470.0,
+    "kernel_us": 41389.0,
+    "speedup": 0.13,
+    "vs_flash": 74.92,
+    "rel_err": "5.8e-03",
+    "iters": 1
+  },
+  {
+    "op": "temp_perhead",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 5212.3,
+    "kernel_us": 3657.2,
+    "speedup": 1.43,
+    "vs_flash": 6.62,
+    "rel_err": "9.3e-03",
+    "iters": 1
+  },
+  {
+    "op": "bias_alibi",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 6350.7,
+    "kernel_us": 1089.9,
+    "speedup": 5.83,
+    "vs_flash": 1.97,
+    "rel_err": "5.7e-03",
+    "iters": 1
+  },
+  {
+    "op": "bias_dilated",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 3715.6,
+    "kernel_us": 2448.4,
+    "speedup": 1.52,
+    "vs_flash": 4.43,
+    "rel_err": "3.8e-03",
+    "iters": 1
+  },
+  {
+    "op": "bias_local",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 1821.2,
+    "kernel_us": 963.8,
+    "speedup": 1.89,
+    "vs_flash": 1.74,
+    "rel_err": "1.3e-02",
+    "iters": 1
+  },
+  {
+    "op": "bias_block_diagonal",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 1622.0,
+    "kernel_us": 462.3,
+    "speedup": 3.51,
+    "vs_flash": 0.84,
+    "rel_err": "3.7e-03",
+    "iters": 1
+  },
+  {
+    "op": "bias_prefix_lm",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 9082.0,
+    "kernel_us": 1905.1,
+    "speedup": 4.77,
+    "vs_flash": 3.45,
+    "rel_err": "1.2e-02",
+    "iters": 1
+  },
+  {
+    "op": "softcap_gemma2",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 11403.5,
+    "kernel_us": 1268.8,
+    "speedup": 8.99,
+    "vs_flash": 2.3,
+    "rel_err": "5.6e-03",
+    "iters": 1
+  },
+  {
+    "op": "bias_sliding_window",
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 9139.5,
+    "kernel_us": 661.1,
+    "speedup": 13.82,
+    "vs_flash": 1.2,
+    "rel_err": "3.7e-03",
+    "iters": 1
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "model": "gemini-2.5-pro",
+    "status": "ACCEPTED",
+    "baseline_us": 8840.4,
+    "kernel_us": 1488.4,
+    "speedup": 5.94,
+    "vs_flash": 2.71,
+    "rel_err": "4.5e-03",
+    "iters": 2
+  },
+  {
+    "model": "gemini-3.1-pro-preview",
+    "status": "ACCEPTED",
+    "baseline_us": 8840.4,
+    "kernel_us": 1620.5,
+    "speedup": 5.46,
+    "vs_flash": 2.95,
+    "rel_err": "4.5e-03",
+    "iters": 1
+  }
+]

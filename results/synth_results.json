@@ -1,0 +1,22 @@
+[
+  {
+    "op": "softcap_gemma2",
+    "status": "ACCEPTED",
+    "baseline_us": 11203.0,
+    "kernel_us": 825.1,
+    "speedup": 13.58,
+    "vs_flash": 1.49,
+    "rel_err": "7.9e-03",
+    "iters": 1
+  },
+  {
+    "op": "bias_sliding_window",
+    "status": "BEST-EFFORT",
+    "baseline_us": 8748.2,
+    "kernel_us": 674.8,
+    "speedup": 12.96,
+    "vs_flash": 1.22,
+    "rel_err": "5.9e-03",
+    "iters": 1
+  }
+]

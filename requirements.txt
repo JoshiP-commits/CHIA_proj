@@ -1,0 +1,5 @@
+# Exact environment used for every number in the paper.
+# A100-SXM4-40GB (sm80), CUDA 12.9, NVIDIA driver 580.178.04, Ubuntu 22.04,
+# GCE a2-highgpu-1g, image family pytorch-2-9-cu129-ubuntu-2204-nvidia-580.
+torch==2.9.1          # Triton ships with it; do not install triton separately
+google-genai          # Stage 2 only (Vertex AI); not needed to re-benchmark

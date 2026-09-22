@@ -1,0 +1,116 @@
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+MODEL=gemini-3.1-pro-preview   flash ceiling 552 us   -> /home/devstar7724/kernels_gemini31propre_0018
+
+==========================================================================
+OP: sigmoid_attn
+==========================================================================
+  eager baseline 8810 us (12 kernels)
+  -- iter 1/3 --
+Direct use of automatic function calling (AFC) in Models.generate_content is not recommended. Instead, we recommend to use AFC in Chat.send_message. Similarly, direct use of AFC in Models.generate_content_stream is not recommended. Instead, we recommend to use AFC in Chat.send_message_stream.
+     verify FAIL (standard rel=8.01e-01; small rel=1.01e+00)
+  -- iter 2/3 --
+     verify FAIL (standard rel=8.01e-01; small rel=1.01e+00)
+  -- iter 3/3 --
+     verify FAIL (standard rel=8.01e-01; small rel=1.01e+00)
+==========================================================================
+OP: relu_attn
+==========================================================================
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+  eager baseline 5470 us (7 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=5.77e-03; small rel=5.49e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     41389 us   speedup 0.13x   (74.92x flash)
+==========================================================================
+OP: temp_perhead
+==========================================================================
+  eager baseline 5212 us (7 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=9.28e-03; small rel=2.88e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     3657 us   speedup 1.43x   (6.62x flash)
+==========================================================================
+OP: bias_alibi
+==========================================================================
+  eager baseline 6351 us (8 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=5.71e-03; small rel=4.46e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     1090 us   speedup 5.83x   (1.97x flash)
+==========================================================================
+OP: bias_dilated
+==========================================================================
+  eager baseline 3716 us (6 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=3.80e-03; small rel=2.82e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     2448 us   speedup 1.52x   (4.43x flash)
+==========================================================================
+OP: bias_local
+==========================================================================
+  eager baseline 1821 us (3 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=1.35e-02; small rel=4.94e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     964 us   speedup 1.89x   (1.74x flash)
+==========================================================================
+OP: bias_block_diagonal
+==========================================================================
+  eager baseline 1622 us (3 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=3.71e-03; small rel=2.88e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     462 us   speedup 3.51x   (0.84x flash)
+==========================================================================
+OP: bias_prefix_lm
+==========================================================================
+  eager baseline 9082 us (0 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=1.21e-02; small rel=4.94e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     1905 us   speedup 4.77x   (3.45x flash)
+==========================================================================
+OP: softcap_gemma2
+==========================================================================
+  eager baseline 11404 us (0 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=5.55e-03; small rel=2.88e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     1269 us   speedup 8.99x   (2.30x flash)
+==========================================================================
+OP: bias_sliding_window
+==========================================================================
+  eager baseline 9140 us (0 kernels)
+  -- iter 1/3 --
+     verify PASS (standard rel=3.71e-03; small rel=2.88e-03)
+/home/devstar7724/synth10.py:19: FutureWarning: `cuda_time` is deprecated, please use `device_time` instead.
+  v = getattr(e,a,None)
+     661 us   speedup 13.82x   (1.20x flash)
+
+============================================================================================
+MODEL: gemini-3.1-pro-preview
+op                      status       baseline   kernel  speedup  xflash   relerr  it
+--------------------------------------------------------------------------------------------
+sigmoid_attn            FAILED          8810u------       --   3
+relu_attn               ACCEPTED        5470u   41389u    0.13x  74.92x  5.8e-03   1
+temp_perhead            ACCEPTED        5212u    3657u    1.43x   6.62x  9.3e-03   1
+bias_alibi              ACCEPTED        6351u    1090u    5.83x   1.97x  5.7e-03   1
+bias_dilated            ACCEPTED        3716u    2448u    1.52x   4.43x  3.8e-03   1
+bias_local              ACCEPTED        1821u     964u    1.89x   1.74x  1.3e-02   1
+bias_block_diagonal     ACCEPTED        1622u     462u    3.51x   0.84x  3.7e-03   1
+bias_prefix_lm          ACCEPTED        9082u    1905u    4.77x   3.45x  1.2e-02   1
+softcap_gemma2          ACCEPTED       11404u    1269u    8.99x   2.30x  5.6e-03   1
+bias_sliding_window     ACCEPTED        9140u     661u   13.82x   1.20x  3.7e-03   1
+--------------------------------------------------------------------------------------------
+9/10 accepted
+============================================================================================

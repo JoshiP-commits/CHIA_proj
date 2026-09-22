@@ -1,111 +1,209 @@
-# 🔬 GraphSynth
+# GraphSynth
 
-**Autonomous Optimization of PyTorch Execution Graphs via Search-Guided Compiler Pass & Triton Kernel Synthesis**
+Closed-loop synthesis of Triton kernels for PyTorch operators that Inductor's
+fused-kernel catalog does not cover. An LLM writes a candidate kernel, a numerical
+gate rejects it if it disagrees with the PyTorch reference, and hardware
+measurement decides whether to accept it or feed the failure back into the prompt.
 
-> Submitted to the **CHIA Hackathon @ MICRO 2026**
-> Authors: **Joshi Penta**, **Priyesh Shukla**  - International Institute of Information Technology Hyderabad
+Artifact for *"GraphSynth: Autonomous Optimization of PyTorch Execution Graphs via
+Search-Guided Compiler Pass & Triton Kernel Synthesis"*, A3 Workshop @ MICRO 2026.
 
----
+Every script here is byte-identical to the one that produced the published numbers.
+Nothing was cleaned up or rewritten for release.
 
-## 📖 Overview
+## Verify the paper without a GPU
 
-Modern deep learning inference is bottlenecked by **memory bandwidth**, not raw compute — yet static compiler backends like PyTorch Inductor and MLIR only optimize a fixed catalog of known operators. Anything outside that catalog silently falls back to slow, unfused execution. Hand-writing an expert Triton or CUDA kernel to fix this takes an engineer **weeks to months per operator**.
+```bash
+python verify_paper_numbers.py
+```
 
-**GraphSynth** replaces that bottleneck with a fully autonomous, closed-loop agent that:
+Recomputes all 20 reported statistics from the released CSVs and fails loudly on
+any disagreement. Takes about a second and needs only the standard library.
 
-1. **Profiles** a PyTorch subgraph to find genuinely memory-bound operators
-2. **Synthesizes** a candidate Triton kernel for it using an LLM (Gemini)
-3. **Verifies** the kernel numerically against PyTorch's own reference implementation
-4. **Profiles it on real GPU hardware** and decides — accept the kernel, or iterate with hardware feedback
+## Headline results
 
-No manual tuning. No fixed kernel template library. Just a search loop grounded in real silicon.
-
----
-
-## 🏗️ How It Works — The Four-Stage Loop
-
-| Stage | What it does |
+| Experiment | Result |
 |---|---|
-| **1. IR Profiler** | Traces the PyTorch FX graph, estimates each operator's theoretical arithmetic intensity (AI) from its real shape/dtype, measures real CUDA time via `torch.cuda.Event`, and ranks every operator by a **bottleneck score** = `CUDA_time / theoretical_AI`. |
-| **2. Gemini Synthesis** | Sends the highest-ranked operator's shape, dtype, and hardware constraints to Gemini, which writes a candidate Triton kernel — tiling, fusion, and vectorization included. |
-| **3. Numerical Verifier** | Checks the kernel against PyTorch's own output across five stress-test input types (`max|K(x) - R(x)| < 1e-5`). Incorrect kernels are rejected immediately — before ever touching real hardware. |
-| **4. CHIA Feedback** | Profiles the verified kernel with **NVIDIA Nsight Compute** on real hardware. If it reaches ≥70% of the roofline bound, it's accepted. Otherwise, the real hardware profile is fed back into Stage 2 for the next attempt. |
+| 10 attention variants outside the fused catalog | verified kernel for 10/10; geo mean **10.83x** over eager, **3.04x** over `torch.compile` |
+| vs hand-tuned FlashAttention | 2 of 10 kernels faster (0.63x and 0.95x of 457 us) |
+| vs `flex_attention` | slower where it applies (geo mean 0.55x) but covers 10/10 against its 8/10 |
+| 7 single-tensor operators (control) | **1.00x** vs `torch.compile`; all paths at 87-88% of peak DRAM bandwidth |
+| Shape generalisation | speedups hold or improve at S = 1024 / 2048 / 4096; best case 60.88x |
 
-The key innovation making Stage 1 reliable: a **shape- and type-aware arithmetic intensity estimator**. A naive estimator that costs every primitive uniformly causes FLOPs and bytes to cancel out, collapsing AI to a near-constant value regardless of an operator's true complexity. GraphSynth instead costs each primitive by its *real traced output shape* and its *specific operation type* (transcendental functions like `exp`/`erf`/`tanh` cost more than basic arithmetic, reflecting real GPU Special Function Unit throughput) — so AI values genuinely differentiate operators of different complexity.
+The control experiment is a negative result and is meant to be. These operators sit
+inside Inductor's coverage and both systems hit the same memory wall, so parity is
+the correct answer; it is reported to show the measurement method does not
+manufacture speedups.
 
----
+## Requirements
 
-## 📊 Results
+- NVIDIA A100-40GB (sm80). Other GPUs will run but produce different numbers:
+  the roofline constants in the scripts are hardcoded to this device
+  (`PEAK_BW = 1555 GB/s`).
+- PyTorch 2.9.1 + CUDA 12.9. Triton ships with PyTorch; do not install it separately.
+- Stage 2 (synthesis) additionally needs Vertex AI access:
+  ```bash
+  export GCP_PROJECT=<your-gcp-project>
+  gcloud auth application-default login
+  ```
+  Re-benchmarking the included kernels needs **no** API access.
 
-Evaluated end-to-end on a single **NVIDIA Tesla T4 GPU** (Google Colab), across 9 operators:
+## Reproducing
 
-| Operator | AI (FLOPs/Byte) | Status | Roofline % | Speedup | Iterations |
-|---|---:|---|---:|---:|---:|
-| `matmul` | 170.7 | ⏭️ Skipped (compute-bound) | — | — | 0 |
-| `conv` | 96.0 | ⏭️ Skipped (compute-bound) | — | — | 0 |
-| `layernorm` | 0.063 | ✅ Accepted | 89.7% | 1.62× | 1 |
-| `relu` | 0.100 | ✅ Accepted | 90.9% | 1.24× | 1 |
-| `leaky_relu` | 0.094 | ✅ Accepted | 90.7% | 1.17× | 1 |
-| `softmax` | 0.150 | ✅ Accepted | 89.4% | 1.33× | 1 |
-| `silu` | 0.182 | ✅ Accepted | 90.8% | 1.23× | 1 |
-| `sigmoid` | 0.219 | ✅ Accepted | 89.8% | 1.12× | 1 |
-| `gelu` | 0.227 | ✅ Accepted | 90.0% | 1.15× | 1 |
+You need your own machine with an NVIDIA A100-40GB. Nothing here depends on our
+infrastructure: the VM these results were produced on no longer exists, and the scripts
+talk only to the local GPU (Stage 2 additionally calls Vertex AI, and is optional).
 
-**Highlights:**
-- Stage 1 correctly identified `matmul` and `conv` as compute-bound and **skipped synthesis entirely** — cuBLAS/cuDNN are already near-optimal for these, so no GPU time or LLM calls were wasted on them.
-- All **7 memory-bound operators converged in a single Gemini iteration**, each landing in the **89–91% roofline** range.
-- Full raw logs backing these numbers are in [`logs/stage1-4_run_output.txt`](logs/stage1-4_run_output.txt).
+The benchmark scripts locate kernels with `os.path.expanduser("~")`, which resolves to
+**your own home directory on the machine you run them on** (`/home/<you>`), not to
+anything from our setup. They also write their output CSVs there. So copy the kernel
+directories into your home directory once:
 
----
-
-## 🚀 Getting Started
-
-### Requirements
-- Google Colab with a **T4 GPU** runtime (or any CUDA GPU with Nsight Compute counter access — see note below)
-- A free [Gemini API key](https://aistudio.google.com/apikey)
-- No local installation needed — the notebook installs everything itself
-
-### Running it
-
-1. Open **`GraphSynth_MultiOp_Colab.ipynb`** in Google Colab
-2. **Runtime → Change runtime type → T4 GPU**
-3. Run the config cell and edit `OPS_TO_TEST` to whichever operators you want to test — any name that exists in `torch` or `torch.nn.functional` works automatically, no code changes needed:
-```python
-   OPS_TO_TEST = ["softmax", "relu", "gelu", "layernorm", "sigmoid"]
-```
-4. Paste your Gemini API key when prompted
-5. Run every remaining cell, top to bottom
-
-Expected runtime: **10–20 minutes**, dominated by Gemini API latency and Nsight profiling passes.
-
----
-
-## 📁 Repository Structure
-
-```
-CHIA_proj/
-├── README.md
-├── GraphSynth_MultiOp_Colab_v9.ipynb    <- the full runnable pipeline
-├── generated_kernels/                    <- created automatically when
-│                                             you run the notebook; holds
-│                                             every accepted Triton kernel
-└── logs/                                 <- (optional) paste your own
-                                              run's console output here
-                                              for reference
+```bash
+cp -r kernels_* generated_kernels ~/
+ls -d ~/kernels_*        # expect four directories
 ```
 
-> **Note:** `generated_kernels/` and `logs/` are not pre-populated in
-> this repo — they are produced automatically the first time you run
-> `GraphSynth_MultiOp_Colab_v9.ipynb` end to end. Each accepted kernel
-> is saved to `generated_kernels/<op_name>_kernel.py` during Stage 2/3/4.
-## 📄 Citation
+After that you can run the scripts from anywhere inside the clone. Their CSVs will
+appear in `~/`, and you can diff them against the published copies in `results/`.
 
-If you use this work, please cite the accompanying paper submitted to the CHIA Hackathon @ MICRO 2026.
+**1. Validate the timer first.** Everything downstream depends on it.
 
-## 📜 License
+```bash
+python timer_fix.py
+```
 
-MIT — see [`LICENSE`](LICENSE).
+Times a pure device-to-device copy of an 8192x8192 fp32 tensor, which moves exactly
+536.9 MB and does no arithmetic. Expect ~389.6 us, i.e. 1376 GB/s or 88.6% of peak.
+Anything above 100% means the timer is wrong, and an earlier version of this work
+was wrong in exactly that way (see *Known issues*).
 
-## 🤖 Acknowledgment of AI Assistance
+**2. Re-benchmark the released kernels** (no LLM calls, ~10 min):
 
-Portions of this repository's code implementation, debugging, and documentation were assisted by **Claude (Anthropic)**. All experimental results, design decisions, and conclusions were reviewed and verified by the human authors, who take full responsibility for the entire content, correctness, and quality of this artifact.
+```bash
+python final_bench.py    # -> FINAL_single_tensor.csv, FINAL_attention.csv   (Tables 1, 2)
+python extra_bench.py    # -> FINAL_flexattention.csv                        (Table 2)
+python shape_gen.py      # -> FINAL_shape_generalisation.csv                 (Table 3)
+```
+
+**3. Re-run synthesis from scratch** (needs Vertex AI; ~30 min; results will differ,
+LLM sampling is stochastic):
+
+```bash
+GEMINI_MODEL=gemini-2.5-pro        MAX_ITER=3 python synth10.py
+GEMINI_MODEL=gemini-3.1-pro-preview MAX_ITER=3 python synth10.py
+python single_tensor.py     # 7-operator control
+python sigmoid_fix.py       # sigmoid attention with the corrected reference
+```
+
+Each run writes to a timestamped `kernels_<model>_<HHMM>/` directory so a second run
+cannot overwrite the first.
+
+## Independent reproduction check
+
+The packaged repository was unpacked into a clean directory on the same A100 and
+re-run end to end. Two runs of the same measurement are not expected to be bit-identical,
+and they are not:
+
+| | Released CSVs | Fresh re-run | difference |
+|---|---|---|---|
+| single-tensor, geo mean vs eager | 1.08x | 1.08x | - |
+| single-tensor, geo mean vs `torch.compile` | 1.00x | 1.00x | - |
+| beats `torch.compile` on | 1/7 | 1/7 | - |
+| attention, geo mean vs eager | 10.83x | 10.82x | 0.09% |
+| attention, geo mean vs `torch.compile` | 3.04x | 3.04x | - |
+| beats `torch.compile` on | 10/10 | 10/10 | - |
+| copy-bandwidth calibration | 88.6% of peak | 88.5% | 0.1% |
+| rows exceeding 100% of peak bandwidth | 0 | 0 | - |
+
+Largest per-operator deviation was `temp_perhead`, 5.11x against 5.08x, i.e. 0.6%.
+Treat roughly 0.5% as the run-to-run noise floor for these measurements. The paper
+quotes the released CSVs, which `verify_paper_numbers.py` checks.
+
+## Which file backs which table
+
+| Paper | File |
+|---|---|
+| Table 1 (single-tensor control) | `results/FINAL_single_tensor.csv` |
+| Table 2 (attention variants) | `results/FINAL_flexattention.csv` |
+| Table 3 (shape generalisation) | `results/FINAL_shape_generalisation.csv` |
+| Sec. 4.4 synthesis convergence | `results/logs/log_25pro.txt`, `log_31pro.txt`, `results/results_*.json` |
+
+Every column of Table 2 is taken from `FINAL_flexattention.csv` so that each row is
+internally consistent. `FINAL_attention.csv` is an earlier run of the same
+measurement, kept for transparency; it differs by under 0.3%.
+
+## Layout
+
+**Pipeline**
+
+| File | Role |
+|---|---|
+| `synth.py`, `synth10.py` | Stages 1-3: profile, prompt, synthesize, verify |
+| `single_tensor.py` | end-to-end run for the 7-operator control |
+| `sigmoid_fix.py` | sigmoid attention with the corrected reference |
+| `timer_fix.py` | the validated timer and its falsification test |
+| `recover.py` | re-imports kernels from a crashed run |
+
+**Benchmarks**
+
+| File | Produces |
+|---|---|
+| `final_bench.py` | Tables 1 and 2 |
+| `extra_bench.py` | the `flex_attention` column of Table 2 |
+| `shape_gen.py` | Table 3 |
+| `bench.py`, `compile_bench.py` | earlier measurement passes, kept for the record |
+
+**Generated kernels**
+
+| Directory | Contents |
+|---|---|
+| `kernels_gemini31propre_0018/` | gemini-3.1-pro-preview, 10/10 accepted |
+| `kernels_gemini25pro_2346/` | gemini-2.5-pro, 9/10 accepted |
+| `kernels_sigmoid_fix/` | sigmoid attention, corrected reference |
+| `kernels_single_tensor/` | the 7 control operators |
+| `generated_kernels/` | 2-operator prototype run |
+
+**Data and paper**
+
+| Directory | Contents |
+|---|---|
+| `results/` | CSVs, JSONs, synthesis logs |
+| `paper/` | the paper PDF and its LaTeX source |
+
+Kernel files are named `<operator>_iter<N>.py` for each attempt and `<operator>_BEST.py`
+for the accepted one. **Failed iterations are kept deliberately** — they are the
+evidence for the feedback loop described in Sec. 4.4, and you can read the repair
+sequence directly (e.g. `softcap_gemma2_iter1.py` calls `tl.math.tanh`, which does not
+exist in this Triton version; `iter2` switches to a removed `tl.dot(trans_b=True)`;
+`iter3` compiles and verifies).
+
+## Known issues and honest caveats
+
+- **An earlier version of this work reported inflated speedups.** It divided a
+  CUDA-event baseline by an Nsight Compute kernel latency. Those instruments measure
+  different intervals — events around a single call absorb host dispatch gaps, the
+  Nsight counter does not — so the ratio inflated every speedup by dispatch overhead.
+  A trivial kernel measures 31.7 us one way and about 2 us the other. Everything in
+  the current paper was re-measured with the single loop-based timer in `timer_fix.py`,
+  applied identically to all four paths.
+- **One kernel is silently wrong at an unseen shape.** The `gemini-3.1-pro-preview`
+  kernel for `bias_prefix_lm` passes the correctness gate at S=1024 and S=2048 but
+  returns 23% relative error at S=4096. It does not raise, does not return the wrong
+  shape, and does not produce NaN. `verify_paper_numbers.py` prints it. Per-shape
+  re-verification is required before deploying any LLM-generated kernel.
+- **Four `gemini-2.5-pro` kernels hardcoded the synthesis shape** and raise
+  `AssertionError` at any S != 2048.
+- **One reported failure was our bug, not the model's.** Sigmoid attention initially
+  failed for both backends with an identical ~0.8 relative error. Our reference zeroed
+  masked scores *before* the sigmoid, and since sigmoid(0) = 0.5 the masked positions
+  received half weight instead of none. `sigmoid_fix.py` has the corrected reference.
+  An error identical across models and iterations points at the specification, not the
+  generated code.
+- **Single trial per cell.** LLM sampling is stochastic and we report no variance on
+  convergence or latency.
+- **Forward pass only**, one GPU, fixed head dimension and batch size.
+
+## Citing
+
+The paper is in `paper/GraphSynth_A3_MICRO2026.pdf`, with its LaTeX source in `paper/main.tex`.

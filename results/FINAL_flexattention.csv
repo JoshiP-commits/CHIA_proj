@@ -1,0 +1,11 @@
+compiled_us,eager_us,flex_compile_s,flex_relerr,flex_us,graphsynth_us,gs_vs_flex,note,op
+1991.3,8534.5,,,,1073.2,,NOT EXPRESSIBLE,sigmoid_attn
+1994.2,8534.3,,,,472.8,,NOT EXPRESSIBLE,relu_attn
+2636.6,9520.7,2.2,1.0e-02,613.7,1863.6,0.33,,temp_perhead
+2622.6,11076.1,1.9,5.8e-03,640.7,841.4,0.76,,bias_alibi
+2584.9,8442.5,1.9,5.7e-03,570.6,1816.7,0.31,,bias_dilated
+2640.2,8389.7,1.8,1.0e-02,402.1,661.6,0.61,,bias_local
+2579.9,8250.6,1.9,5.6e-03,261.0,289.4,0.9,,bias_block_diagonal
+2579.4,8335.3,1.8,1.3e-02,556.7,1389.7,0.4,,bias_prefix_lm
+3133.3,10644.6,1.9,6.5e-03,846.8,901.0,0.94,,softcap_gemma2
+2582.3,8330.5,1.6,5.2e-03,226.5,433.0,0.52,,bias_sliding_window

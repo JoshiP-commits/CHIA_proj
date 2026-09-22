@@ -1,0 +1,8 @@
+compile_note,compiled_us,eager_bw_pct,eager_us,graphsynth_us,gs_bw_pct,gs_vs_compiled,gs_vs_eager,inductor_speedup,iters,model,op,status
+,389.9,88.4,390.6,352.7,97.9,1.11,1.11,1.0,1,gemini-3.1-pro-preview,relu,ACCEPTED
+,350.9,98.4,351.0,334.4,103.2,1.05,1.05,1.0,1,gemini-3.1-pro-preview,leaky_relu,ACCEPTED
+,331.6,104.0,332.0,312.0,110.7,1.06,1.06,1.0,1,gemini-3.1-pro-preview,sigmoid,ACCEPTED
+,312.0,110.5,312.4,253.5,136.2,1.23,1.23,1.0,1,gemini-3.1-pro-preview,silu,ACCEPTED
+,254.6,136.2,253.5,175.6,196.6,1.45,1.44,1.0,1,gemini-3.1-pro-preview,gelu,ACCEPTED
+,178.4,132.7,260.2,118.3,292.0,1.51,2.2,1.46,1,gemini-3.1-pro-preview,softmax,ACCEPTED
+,117.6,195.6,176.5,78.9,437.8,1.49,2.24,1.5,1,gemini-3.1-pro-preview,layernorm,ACCEPTED
