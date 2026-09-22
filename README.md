@@ -188,7 +188,6 @@ measurement, kept for transparency; it differs by under 0.3%.
 | Directory | Contents |
 |---|---|
 | `results/` | CSVs, JSONs, synthesis logs |
-| `paper/` | the paper PDF and its LaTeX source |
 
 Kernel files are named `<operator>_iter<N>.py` for each attempt and `<operator>_BEST.py`
 for the accepted one. **Failed iterations are kept deliberately** — they are the
@@ -225,4 +224,5 @@ exist in this Triton version; `iter2` switches to a removed `tl.dot(trans_b=True
 
 ## Citing
 
-The paper is in `paper/GraphSynth_A3_MICRO2026.pdf`, with its LaTeX source in `paper/main.tex`.
+Please cite the A3 @ MICRO 2026 paper. The manuscript is withheld from this repository
+during anonymous review and will be added once decisions are released.
