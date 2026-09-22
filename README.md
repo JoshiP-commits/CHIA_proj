@@ -17,7 +17,7 @@ Nothing was cleaned up or rewritten for release.
 python verify_paper_numbers.py
 ```
 
-Recomputes all 20 reported statistics from the released CSVs and fails loudly on
+Recomputes all 19 reported statistics from the released CSVs and fails loudly on
 any disagreement. Takes about a second and needs only the standard library.
 
 ## Headline results
@@ -27,7 +27,7 @@ any disagreement. Takes about a second and needs only the standard library.
 | 10 attention variants outside the fused catalog | verified kernel for 10/10; geo mean **10.83x** over eager, **3.04x** over `torch.compile` |
 | vs hand-tuned FlashAttention | 2 of 10 kernels faster (0.63x and 0.95x of 457 us) |
 | vs `flex_attention` | slower where it applies (geo mean 0.55x) but covers 10/10 against its 8/10 |
-| 7 single-tensor operators (control) | **1.00x** vs `torch.compile`; all paths at 87-88% of peak DRAM bandwidth |
+| 7 single-tensor operators (control) | **1.00x** vs `torch.compile`; every optimized path at 87-88% of peak DRAM bandwidth |
 | Shape generalisation | speedups hold or improve at S = 1024 / 2048 / 4096; best case 60.88x |
 
 The control experiment is a negative result and is meant to be. These operators sit

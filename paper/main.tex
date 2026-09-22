@@ -75,8 +75,8 @@ express, by a geometric mean of 1.81$\times$, but it cannot express the remainin
 which replace the softmax normalization instead of modifying the attention scores.
 GraphSynth therefore offers wider coverage and full automation rather than higher peak
 performance. As a control, we also ran seven single-tensor operators, where GraphSynth
-matches \tc{} exactly (geometric mean 1.00$\times$) and all four paths reach 87 to 88\%
-of peak DRAM bandwidth, showing that the method reports no gain where memory bandwidth
+matches \tc{} exactly (geometric mean 1.00$\times$) and every optimized path converges to
+87 to 88\% of peak DRAM bandwidth, showing that the method reports no gain where memory bandwidth
 already sets the limit.
 
 \vspace{4pt}
@@ -308,11 +308,11 @@ Table~\ref{tab:single} measures seven single-tensor operators at $8192{\times}81
 fp32, each moving $B_{\min}=536.9$~MB against a DRAM time floor of 345~$\mu$s. All 7/7
 were synthesized and verified.
 
-Every path converges to the same ceiling: all twenty-one measurements fall in
-392 to 398~$\mu$s, i.e.\ 86.8 to 88.2\% of peak, indistinguishable from the 88.6\% of a pure
-device copy. For an operator costing one read and one write this is the hardware limit.
-The two operators with genuine headroom, eager softmax at 75.4\% and layernorm at
-58.4\%, which materialize intermediates for their reductions, are closed identically by
+Every path converges to the same ceiling: nineteen of the twenty-one measurements fall
+in 391 to 398~$\mu$s, i.e.\ 86.8 to 88.2\% of peak, indistinguishable from the 88.6\% of a
+pure device copy. For an operator costing one read and one write this is the hardware
+limit. The only two measurements outside that band are the two operators with genuine
+headroom, eager softmax at 75.4\% and eager layernorm at 58.4\%, which materialize intermediates for their reductions, are closed identically by
 both systems (1.15$\times$ and 1.49$\times$); the five pointwise operators were already
 at the ceiling and correctly report 1.00$\times$.
 
